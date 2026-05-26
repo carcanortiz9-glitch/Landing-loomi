@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agente IA para WhatsApp — Convierte leads en segundos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+/* ===================== RESET ===================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:var(--black);line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{text-decoration:none}
+button{font-family:'Plus Jakarta Sans',sans-serif}
+
+/* ===================== VARIABLES ===================== */
+:root{
+  --green:#B8FF00;
+  --green-dark:#8CBD00;
+  --green-ui:#B8FF00;
+  --bg-chat:#efeae2;
+  --bubble-in:#fff;
+  --bubble-out:#ebffb0;
+  --black:#0a0a0a;
+  --g100:#f5f5f5;
+  --g200:#e8e8e8;
+  --g400:#9ca3af;
+  --g600:#4b5563;
+  --red:#ef4444;
+}
+
+/* ===================== KEYFRAMES ===================== */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tdot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* ===================== HELPERS ===================== */
+.serif-italic{font-family:'Instrument Serif',serif;font-style:italic}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;display:block}
+.kicker-green{color:var(--green)}
+.kicker-red{color:var(--red)}
+.container{max-width:1240px;margin:0 auto;padding:0 32px}
+
+/* ===================== CHAT SHARED ===================== */
+.msg{max-width:75%;padding:8px 12px;border-radius:8px;font-size:13.5px;line-height:1.55;animation:fadeUp .3s ease;white-space:pre-line}
+.msg-in{background:var(--bubble-in);border-radius:0 8px 8px 8px;align-self:flex-start;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.msg-out{background:var(--bubble-out);border-radius:8px 0 8px 8px;align-self:flex-end;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.typing-dots{display:flex;align-items:center;gap:4px;background:var(--bubble-in);border-radius:0 8px 8px 8px;padding:10px 14px;align-self:flex-start;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--g400);animation:tdot 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+.led{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.5s ease-in-out infinite;flex-shrink:0}
+
+/* ===================== WA HEADER ===================== */
+.wa-header-bar{background:var(--green-ui);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.wa-avatar{border-radius:50%;background:var(--green-dark);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wa-name{font-weight:700;color:#0a0a0a}
+.wa-status-line{font-size:12px;color:rgba(0,0,0,.6);display:flex;align-items:center;gap:5px}
+.wa-online-dot{width:7px;height:7px;border-radius:50%;background:#0a0a0a}
+.live-badge{display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.15);border-radius:99px;padding:4px 12px;font-size:11px;font-weight:700;color:#0a0a0a}
+.live-badge .led{background:#0a0a0a}
+
+/* ==========================================
+   1. HERO
+========================================== */
+#hero{background:var(--black);min-height:calc(100vh - 60px);display:flex;align-items:center;padding:80px 24px}
+.hero-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;width:100%}
+
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(184,255,0,.12);border:1px solid rgba(184,255,0,.3);border-radius:99px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--green);margin-bottom:28px}
+
+#hero h1{font-size:clamp(34px,4.8vw,56px);font-weight:800;color:#fff;line-height:1.08;margin-bottom:24px}
+#hero h1 .accent{font-family:'Instrument Serif',serif;font-style:italic;color:var(--green)}
+
+.hero-sub{font-size:17px;color:var(--g400);line-height:1.7;margin-bottom:32px;max-width:480px}
+
+.hero-pills{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:40px}
+.hero-pill{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:99px;padding:7px 14px;font-size:13px;font-weight:500;color:#fff}
+.hero-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s ease-in-out infinite}
+
+.btn-hero{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:#0a0a0a;font-weight:700;font-size:16px;border:none;border-radius:12px;padding:16px 32px;cursor:pointer;transition:background .2s,transform .2s}
+.btn-hero:hover{background:var(--green-dark);color:#0a0a0a;transform:translateY(-2px)}
+
+/* Hero chat window */
+.hero-chat-window{background:#1c1c1e;border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.08)}
+.macos-bar{background:#2c2c2e;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.macos-dots{display:flex;gap:7px}
+.macos-dots span{width:12px;height:12px;border-radius:50%}
+.dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
+.macos-title{flex:1;text-align:center;font-size:13px;font-weight:600;color:rgba(255,255,255,.6)}
+.macos-live{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--green);background:rgba(184,255,0,.1);border-radius:99px;padding:3px 10px}
+.macos-live .led{width:5px;height:5px}
+
+.hero-messages{background:var(--bg-chat);height:320px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.hero-messages::-webkit-scrollbar{width:4px}
+.hero-messages::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:2px}
+
+.hero-input-bar{background:#f0f2f5;padding:10px 12px;display:flex;align-items:center;gap:8px}
+.hero-input-bar input{flex:1;border:none;background:#fff;border-radius:20px;padding:8px 14px;font-size:13px;outline:none;cursor:not-allowed;font-family:'Plus Jakarta Sans',sans-serif}
+.hero-send{width:36px;height:36px;border-radius:50%;background:var(--green-ui);display:flex;align-items:center;justify-content:center;color:#0a0a0a;font-size:14px;flex-shrink:0}
+
+/* ==========================================
+   2. DOLOR
+========================================== */
+#dolor{background:#fff;padding:90px 24px}
+.dolor-header{text-align:center;margin-bottom:56px}
+#dolor h2{font-size:clamp(26px,3.8vw,42px);font-weight:800;color:var(--black);line-height:1.2}
+.dolor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:960px;margin:0 auto}
+.dolor-card{border:1.5px solid var(--g200);border-radius:16px;padding:32px 28px;transition:border-color .25s,transform .25s,box-shadow .25s;cursor:default}
+.dolor-card:hover{border-color:var(--red);transform:translateY(-4px);box-shadow:0 16px 40px rgba(239,68,68,.08)}
+.dolor-emoji{font-size:36px;margin-bottom:16px}
+.dolor-card h3{font-size:18px;font-weight:700;color:var(--black);margin-bottom:10px;line-height:1.3}
+.dolor-card p{font-size:14px;color:var(--g600);line-height:1.65;margin-bottom:16px}
+.error-tag{display:inline-block;background:rgba(239,68,68,.08);color:var(--red);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:4px 10px}
+
+/* ==========================================
+   3. DEMO SECTION
+========================================== */
+#demoSection{background:var(--black);padding:90px 24px;position:relative;overflow:hidden}
+#demoSection::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;background:radial-gradient(ellipse,rgba(184,255,0,.11) 0%,transparent 68%);pointer-events:none}
+.demo-inner{max-width:820px;margin:0 auto;position:relative;z-index:1}
+
+.demo-head-text{text-align:center;margin-bottom:48px}
+.demo-head-text h2{font-size:clamp(26px,4vw,44px);font-weight:800;color:#fff;line-height:1.15;margin-bottom:14px}
+.demo-head-text h2 .accent{color:var(--green)}
+.demo-head-text p{font-size:17px;color:var(--g400);max-width:560px;margin:0 auto}
+
+/* Chatbox */
+.demo-chat-box{background:#1c1c1e;border-radius:20px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.08);margin-bottom:32px}
+.demo-wa-header{padding:14px 20px;display:flex;align-items:center;gap:12px;background:var(--green-ui)}
+.demo-wa-info{flex:1}
+.demo-wa-info .name{font-size:16px;font-weight:700;color:#0a0a0a}
+.demo-wa-info .status{font-size:12px;color:rgba(0,0,0,.6)}
+
+#demoChatMessages{background:var(--bg-chat);height:400px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+#demoChatMessages::-webkit-scrollbar{width:4px}
+#demoChatMessages::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:2px}
+
+.quick-replies{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:var(--bg-chat);border-top:1px solid rgba(0,0,0,.06)}
+.qr-btn{background:#fff;border:1.5px solid var(--green);color:var(--green-dark);border-radius:99px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s,color .2s}
+.qr-btn:hover{background:var(--green);color:#0a0a0a}
+
+.demo-input-bar{background:#f0f2f5;padding:12px 16px;display:flex;align-items:center;gap:10px}
+#demoInput{flex:1;border:none;background:#fff;border-radius:24px;padding:11px 18px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;color:var(--black)}
+#demoInput::placeholder{color:var(--g400)}
+#demoSend{width:44px;height:44px;border-radius:50%;background:var(--green-ui);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;flex-shrink:0}
+#demoSend:hover{background:var(--green-dark);transform:scale(1.05)}
+#demoSend svg{width:20px;height:20px;fill:#0a0a0a}
+#demoSend:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+/* Key bar */
+.key-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#1a1a1a;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.key-bar-label{font-size:12px;font-weight:600;color:var(--g400);white-space:nowrap}
+.key-bar input{flex:1;min-width:160px;background:#2a2a2a;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:7px 12px;font-size:13px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none}
+.key-bar input:focus{border-color:var(--green)}
+.key-bar button{background:var(--green);color:#0a0a0a;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif}
+.key-bar button:hover{background:var(--green-dark)}
+
+/* Conversion block */
+.conversion-block{margin-top:48px}
+.hook-section{border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:44px 0;margin-bottom:40px}
+.hook-eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:16px}
+.hook-heading{font-size:clamp(26px,4vw,38px);font-weight:800;color:#fff;line-height:1.25}
+.hook-heading .opaque{font-family:'Instrument Serif',serif;font-style:italic;color:rgba(255,255,255,.38)}
+
+.includes-grid{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.includes-item{display:flex;align-items:center;gap:10px;font-size:15px;color:#fff;font-weight:500}
+.includes-check{width:22px;height:22px;border-radius:50%;background:rgba(184,255,0,.15);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:12px;font-weight:700;flex-shrink:0}
+
+.testimonial-block{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-left:3px solid var(--green);border-radius:0 12px 12px 0;padding:28px 28px 28px 32px;margin-bottom:48px}
+.stars{color:#f59e0b;font-size:18px;margin-bottom:12px;letter-spacing:2px}
+.t-quote{font-family:'Instrument Serif',serif;font-style:italic;font-size:20px;color:rgba(255,255,255,.9);line-height:1.65;margin-bottom:20px}
+.t-author{display:flex;align-items:center;gap:12px}
+.t-ava{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:20px}
+.t-name{font-size:14px;font-weight:700;color:#fff}
+.t-role{font-size:13px;color:var(--g400)}
+
+.cta-final{text-align:center}
+.cta-step-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:16px}
+.cta-final h3{font-size:clamp(22px,3vw,30px);font-weight:800;color:#fff;line-height:1.3;margin-bottom:12px}
+.cta-final h3 .green{color:var(--green)}
+.cta-final p{font-size:16px;color:var(--g400);margin-bottom:32px}
+
+.btn-pill-white{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--black);font-weight:700;font-size:16px;border:none;border-radius:99px;padding:18px 36px;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.btn-pill-white:hover{background:var(--green);color:#0a0a0a;transform:translateY(-2px)}
+.btn-pill-white:hover .led{background:#fff}
+.btn-disclaimer{font-size:13px;color:var(--g600);margin-top:14px}
+.urgency-banner{display:inline-block;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:12px 20px;font-size:13px;font-weight:600;color:#fbbf24;margin-top:20px}
+
+/* ==========================================
+   4. IMPACTO
+========================================== */
+#impacto{background:#f9f9f7;padding:90px 24px}
+.impacto-header{text-align:center;margin-bottom:48px}
+#impacto h2{font-size:clamp(26px,3.8vw,42px);font-weight:800;color:var(--black);line-height:1.2;margin-bottom:12px}
+#impacto h2 .accent{font-family:'Instrument Serif',serif;font-style:italic;color:var(--red)}
+.impacto-sub{font-size:16px;color:var(--g600)}
+
+.sector-tabs{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:40px}
+.sector-tab{border:1.5px solid var(--g200);background:#fff;border-radius:99px;padding:9px 20px;font-size:14px;font-weight:600;color:var(--g600);cursor:pointer;transition:all .2s}
+.sector-tab:hover,.sector-tab.active{background:var(--black);color:#fff;border-color:var(--black)}
+
+.impact-card{background:#fff;border-radius:20px;padding:48px;max-width:700px;margin:0 auto 48px;box-shadow:0 8px 32px rgba(0,0,0,.06)}
+.impact-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g600);margin-bottom:12px}
+.impact-number{font-size:clamp(48px,8vw,80px);font-weight:800;color:var(--red);line-height:1;margin-bottom:16px;font-variant-numeric:tabular-nums}
+.impact-context{font-size:16px;color:var(--g600);margin-bottom:24px;line-height:1.65}
+.impact-pills{display:flex;flex-wrap:wrap;gap:10px}
+.i-pill{border-radius:99px;padding:6px 14px;font-size:13px;font-weight:600}
+.i-pill-red{background:rgba(239,68,68,.08);color:var(--red)}
+.i-pill-green{background:rgba(184,255,0,.1);color:var(--green-dark)}
+
+/* Comparison */
+.comparison-wrap{max-width:860px;margin:0 auto}
+.comp-grid{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center}
+.comp-col{border-radius:16px;padding:32px}
+.comp-bad{background:#fff;border:1.5px solid var(--g200)}
+.comp-good{background:#f5ffcc;border:1.5px solid rgba(184,255,0,.3)}
+.comp-vs-col{display:flex;align-items:center;justify-content:center}
+.comp-vs-circle{width:44px;height:44px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff}
+.comp-badge{display:inline-block;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px}
+.comp-badge-red{background:rgba(239,68,68,.08);color:var(--red)}
+.comp-badge-green{background:rgba(184,255,0,.1);color:var(--green-dark)}
+.comp-list{list-style:none;display:flex;flex-direction:column;gap:12px}
+.comp-list li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--g600);line-height:1.5}
+.comp-list li .ci{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* ==========================================
+   5. CRM
+========================================== */
+#crm{background:#fff;padding:90px 24px}
+.crm-inner{max-width:1160px;margin:0 auto}
+.crm-top{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;margin-bottom:64px}
+#crm h2{font-size:clamp(26px,3.8vw,42px);font-weight:800;color:var(--black);line-height:1.2;margin-bottom:16px}
+#crm h2 .accent{font-family:'Instrument Serif',serif;font-style:italic;color:var(--green)}
+.crm-desc{font-size:16px;color:var(--g600);line-height:1.7}
+
+.crm-black-box{background:var(--black);border-radius:20px;padding:32px}
+.crm-item{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.crm-item:first-child{padding-top:0}
+.crm-item:last-child{border-bottom:none;padding-bottom:0}
+.crm-ico{font-size:24px;flex-shrink:0;margin-top:2px}
+.crm-item-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
+.crm-item-desc{font-size:13px;color:var(--g400);line-height:1.55}
+
+/* Pipeline */
+.pipeline-scroll-outer{background:transparent;border-radius:20px;padding:0;margin-bottom:64px;position:relative}
+.pipeline-wrap{overflow-x:auto;padding-bottom:16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.pipeline-wrap::-webkit-scrollbar{display:none}
+.pipeline{display:flex;gap:16px;min-width:880px}
+.pipeline-scroll-hint{display:none;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;font-size:12px;font-weight:600;color:rgba(255,255,255,.45)}
+.pipeline-scroll-hint svg{width:16px;height:16px;opacity:.5;animation:nudge 1.6s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+.pipe-col{flex:1;min-width:165px}
+.pipe-col-header{display:flex;align-items:center;gap:6px;margin-bottom:12px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700}
+.ph-blue{background:rgba(59,130,246,.1);color:#3b82f6}
+.ph-yellow{background:rgba(245,158,11,.1);color:#f59e0b}
+.ph-purple{background:rgba(139,92,246,.1);color:#8b5cf6}
+.ph-green{background:rgba(184,255,0,.1);color:var(--green-dark)}
+.ph-lgreen{background:rgba(184,255,0,.06);color:var(--green-dark)}
+.pipe-card{background:#fff;border:1.5px solid var(--g200);border-radius:12px;padding:14px;margin-bottom:10px}
+.pipe-card-name{font-size:13px;font-weight:700;color:var(--black);margin-bottom:4px}
+.pipe-card-detail{font-size:12px;color:var(--g600);margin-bottom:5px}
+.pipe-card-time{font-size:11px;color:var(--g400);margin-bottom:8px}
+.pipe-agent-badge{display:inline-block;background:rgba(184,255,0,.08);color:var(--green-dark);font-size:11px;font-weight:600;border-radius:6px;padding:3px 8px}
+
+/* Features grid */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feat-item{border:1.5px solid var(--g200);border-radius:14px;padding:24px;transition:border-color .22s,transform .22s,box-shadow .22s}
+.feat-item:hover{border-color:var(--green);transform:translateY(-3px);box-shadow:0 12px 32px rgba(184,255,0,.08)}
+.feat-ico{font-size:28px;margin-bottom:12px}
+.feat-title{font-size:15px;font-weight:700;color:var(--black);margin-bottom:6px}
+.feat-desc{font-size:13px;color:var(--g600);line-height:1.55;margin-bottom:10px}
+.auto-badge{display:inline-block;background:rgba(184,255,0,.08);color:var(--green-dark);font-size:11px;font-weight:700;border-radius:6px;padding:3px 10px}
+
+/* ==========================================
+   6. CTA WHATSAPP
+========================================== */
+#cta-wa{background:#f0f0ec;padding:70px 24px;text-align:center}
+#cta-wa h2{font-size:clamp(24px,3.2vw,36px);font-weight:800;color:var(--black);margin-bottom:32px;max-width:600px;margin-left:auto;margin-right:auto}
+.btn-wa{display:inline-flex;align-items:center;gap:12px;background:var(--green);color:#0a0a0a;font-weight:700;font-size:17px;border-radius:99px;padding:18px 36px;transition:background .2s,transform .2s;box-shadow:0 8px 24px rgba(184,255,0,.25)}
+.btn-wa:hover{background:var(--green-dark);color:#0a0a0a;transform:translateY(-2px)}
+.btn-wa svg{width:24px;height:24px;fill:#0a0a0a;flex-shrink:0}
+
+/* ==========================================
+   7. CÓMO FUNCIONA
+========================================== */
+#como{background:var(--g100);padding:90px 24px}
+#como h2{font-size:clamp(24px,3.2vw,38px);font-weight:800;color:var(--black);text-align:center;margin-bottom:64px}
+.steps-wrap{max-width:900px;margin:0 auto;position:relative}
+.steps-line{position:absolute;top:24px;left:calc(12.5% + 0px);right:calc(12.5% + 0px);height:2px;background:var(--g200);z-index:0}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative;z-index:1}
+.step-item{text-align:center}
+.step-circle{width:48px;height:48px;border-radius:50%;background:var(--green);color:#0a0a0a;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative;z-index:2}
+.step-title{font-size:16px;font-weight:700;color:var(--black);margin-bottom:8px}
+.step-desc{font-size:13px;color:var(--g600);line-height:1.65}
+
+/* ==========================================
+   8. FAQ
+========================================== */
+#faq{background:#fff;padding:90px 24px}
+.faq-inner{max-width:720px;margin:0 auto}
+#faq h2{font-size:clamp(24px,3vw,34px);font-weight:800;color:var(--black);text-align:center;margin-bottom:48px}
+.faq-item{border-bottom:1.5px solid var(--g200)}
+.faq-btn{width:100%;background:none;border:none;padding:24px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;text-align:left}
+.faq-q-text{font-size:16px;font-weight:700;color:var(--black);line-height:1.4}
+.faq-icon{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--g200);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--g600);flex-shrink:0;transition:transform .25s,color .25s,border-color .25s}
+.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--green);border-color:var(--green)}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.faq-item.open .faq-answer{max-height:400px}
+.faq-answer-body{padding:0 0 24px;font-size:15px;color:var(--g600);line-height:1.7}
+.faq-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600}
+.chip-g{background:rgba(184,255,0,.1);color:var(--green-dark)}
+.chip-b{background:rgba(59,130,246,.1);color:#3b82f6}
+.chip-y{background:rgba(245,158,11,.1);color:#f59e0b}
+
+/* ==========================================
+   9. FOOTER
+========================================== */
+footer{background:#050505;padding:44px 24px;text-align:center}
+footer p{font-size:13px;color:#2a2a2a}
+footer a{color:#333;text-decoration:none}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;gap:40px}
+  .hero-chat-window{display:block;max-width:480px;margin:0 auto;width:100%}
+  .hero-messages{height:240px}
+  .dolor-grid{grid-template-columns:1fr}
+  .crm-top{grid-template-columns:1fr;gap:40px}
+  .features-grid{grid-template-columns:repeat(2,1fr)}
+  .comp-grid{grid-template-columns:1fr;gap:16px}
+  .comp-vs-col{display:none}
+  .steps-grid{grid-template-columns:repeat(2,1fr)}
+  .steps-line{display:none}
+  .includes-grid{grid-template-columns:1fr}
+  .hook-heading{font-size:clamp(22px,5vw,30px)}
+  /* Pipeline scroll hint on mobile */
+  .pipeline-scroll-outer{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:16px 12px 12px}
+  .pipeline-scroll-hint{display:flex!important}
+  /* Wider content on mobile */
+  .container{padding:0 16px}
+  .asesoria-header,.asesoria-grid{max-width:100%}
+}
+@media(max-width:540px){
+  .features-grid{grid-template-columns:1fr}
+  .steps-grid{grid-template-columns:1fr}
+  .impact-card{padding:28px 20px}
+  .crm-black-box{padding:20px}
+  .hero-sub{max-width:100%}
+  .hero-chat-window{max-width:100%}
+}
+
+/* ==========================================
+   PRECIOS
+========================================== */
+#precios{background:var(--black);padding:90px 24px}
+.precios-head{text-align:center;margin-bottom:56px}
+.precios-h2{font-size:clamp(28px,4vw,46px);font-weight:800;color:#fff;line-height:1.15;margin-bottom:12px}
+.precios-h2 .accent{font-family:'Instrument Serif',serif;font-style:italic;color:var(--green)}
+.precios-sub{font-size:16px;color:var(--g400)}
+
+.precios-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+  max-width:1060px;
+  margin:0 auto;
+  align-items:start;
+}
+
+/* Card base */
+.plan-card{
+  background:#141414;
+  border:1.5px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:32px 28px;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  position:relative;
+  transition:border-color .2s;
+}
+.plan-card:hover{border-color:rgba(255,255,255,.18)}
+
+/* Card destacada */
+.plan-featured{
+  border-color:var(--green);
+  background:#141a06;
+  box-shadow:0 0 40px rgba(184,255,0,.12);
+}
+.plan-featured:hover{border-color:var(--green)}
+
+.plan-popular-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(184,255,0,.12);
+  border:1px solid rgba(184,255,0,.3);
+  color:var(--green);
+  font-size:12px;
+  font-weight:700;
+  border-radius:99px;
+  padding:5px 14px;
+  margin-bottom:20px;
+  width:fit-content;
+}
+
+.plan-top{margin-bottom:20px}
+.plan-name{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px}
+.plan-desc{font-size:13px;color:var(--g400);margin-bottom:12px}
+.plan-agents{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(255,255,255,.06);
+  color:var(--g400);
+  font-size:12px;
+  font-weight:600;
+  border-radius:8px;
+  padding:5px 12px;
+}
+
+.plan-price-wrap{margin-bottom:20px}
+.plan-price-old{
+  font-size:14px;
+  color:var(--g600);
+  text-decoration:line-through;
+  margin-bottom:6px;
+}
+.plan-price-row{display:flex;align-items:flex-end;gap:4px;line-height:1}
+.plan-currency{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
+.plan-price{font-size:52px;font-weight:800;color:#fff;letter-spacing:-2px}
+.plan-period{font-size:12px;color:var(--g400);line-height:1.4;margin-bottom:4px;margin-left:4px}
+.plan-discount{
+  background:#fef9c3;
+  color:#854d0e;
+  font-size:12px;
+  font-weight:700;
+  border-radius:99px;
+  padding:3px 10px;
+  margin-bottom:4px;
+  align-self:flex-end;
+}
+
+.plan-lock{
+  background:rgba(184,255,0,.06);
+  border:1px solid rgba(184,255,0,.15);
+  border-radius:12px;
+  padding:14px 16px;
+  display:flex;
+  gap:10px;
+  font-size:12.5px;
+  color:rgba(255,255,255,.7);
+  line-height:1.5;
+  margin-bottom:24px;
+}
+.plan-lock strong{color:#fff}
+.plan-lock-featured{
+  background:rgba(184,255,0,.1);
+  border-color:rgba(184,255,0,.3);
+}
+.lock-ico{font-size:16px;flex-shrink:0;margin-top:1px}
+
+.plan-features{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+  margin-bottom:28px;
+  flex:1;
+}
+.feat-yes,.feat-no{
+  font-size:13.5px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding-left:0;
+}
+.feat-yes{color:rgba(255,255,255,.85)}
+.feat-no{color:var(--g600)}
+.feat-yes::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px}
+.feat-no::before{content:'—';color:var(--g600);flex-shrink:0;margin-top:1px}
+
+/* Plan bonus badge */
+.plan-bonus{display:flex;align-items:flex-start;gap:10px;background:rgba(184,255,0,.07);border:1px solid rgba(184,255,0,.25);border-radius:14px;padding:14px 16px;margin:16px 0}
+.plan-bonus-featured{background:rgba(184,255,0,.12);border-color:rgba(184,255,0,.4)}
+.plan-bonus-ico{font-size:20px;flex-shrink:0;margin-top:1px}
+.plan-bonus-label{font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--green);margin-bottom:3px}
+.plan-bonus-text{font-size:12px;color:rgba(255,255,255,.75);line-height:1.45}
+.plan-bonus-text strong{color:#fff}
+
+/* Asesoría section */
+#asesoria{background:linear-gradient(160deg,#050505 0%,#0a1200 60%,#050505 100%);padding:100px 24px;border-top:1px solid rgba(184,255,0,.12);border-bottom:1px solid rgba(184,255,0,.12);position:relative;overflow:hidden}
+#asesoria::before{content:'';position:absolute;top:-100px;right:-150px;width:600px;height:600px;background:radial-gradient(ellipse,rgba(184,255,0,.09) 0%,transparent 68%);pointer-events:none}
+.asesoria-header{max-width:1240px;margin:0 auto 56px;position:relative;z-index:1}
+.asesoria-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(184,255,0,.1);border:1px solid rgba(184,255,0,.28);color:var(--green);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:22px}
+.asesoria-h2{font-size:clamp(32px,4vw,52px);font-weight:800;color:#fff;line-height:1.08;margin-bottom:20px}
+.asesoria-lead{font-size:17px;color:var(--g400);line-height:1.7;max-width:780px}
+.asesoria-lead strong{color:rgba(255,255,255,.85)}
+.asesoria-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;max-width:1240px;margin:0 auto;position:relative;z-index:1}
+@media(max-width:860px){.asesoria-grid{grid-template-columns:1fr;gap:40px}}
+.asesoria-includes-title{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--green);margin-bottom:20px}
+.asesoria-includes{list-style:none;padding:0;margin:0 0 36px}
+.asesoria-includes li{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.asesoria-includes li:last-child{border-bottom:none}
+.asesoria-item-num{font-size:11px;font-weight:800;color:var(--green);opacity:.7;flex-shrink:0;min-width:22px;margin-top:2px;font-variant-numeric:tabular-nums}
+.asesoria-includes li div{display:flex;flex-direction:column;gap:3px}
+.asesoria-includes li strong{font-size:14px;color:#fff;font-weight:700}
+.asesoria-includes li span{font-size:13px;color:var(--g400);line-height:1.45}
+.asesoria-cta{display:inline-flex;align-items:center;background:var(--green);color:#0a0a0a;font-size:15px;font-weight:800;padding:15px 30px;border-radius:14px;text-decoration:none;transition:opacity .2s,transform .2s}
+.asesoria-cta:hover{opacity:.88;transform:translateY(-1px)}
+.asesoria-value-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;margin-bottom:16px}
+.asesoria-value-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--g400);margin-bottom:10px}
+.asesoria-value-amount{font-size:34px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:8px}
+.asesoria-value-amount span{font-size:14px;color:var(--g400);font-weight:500}
+.asesoria-value-sub{font-size:13px;color:var(--g600);line-height:1.55}
+.asesoria-plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.asesoria-plan-pill{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:18px 10px;text-align:center}
+.asesoria-pill-featured{background:rgba(184,255,0,.08);border-color:rgba(184,255,0,.35)}
+.app-pill-name{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--g400);text-transform:uppercase;margin-bottom:8px}
+.app-pill-dur{font-size:20px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:4px}
+.app-pill-dur.accent{color:var(--green)}
+.app-pill-sub{font-size:10px;color:var(--g600)}
+.asesoria-disclaimer{display:flex;align-items:flex-start;gap:12px;background:rgba(184,255,0,.05);border:1px solid rgba(184,255,0,.15);border-radius:16px;padding:20px}
+.asesoria-disclaimer span{font-size:20px;flex-shrink:0}
+.asesoria-disclaimer p{font-size:13px;color:var(--g400);line-height:1.6;margin:0}
+.asesoria-disclaimer strong{color:rgba(255,255,255,.85)}
+
+.plan-btn{
+  display:block;
+  text-align:center;
+  border-radius:12px;
+  padding:14px 20px;
+  font-size:14px;
+  font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  text-decoration:none;
+  transition:all .2s;
+  cursor:pointer;
+}
+.plan-btn-outline{
+  background:transparent;
+  border:1.5px solid rgba(255,255,255,.15);
+  color:#fff;
+}
+.plan-btn-outline:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.05)}
+.plan-btn-primary{
+  background:var(--green);
+  border:1.5px solid var(--green);
+  color:#0a0a0a;
+}
+.plan-btn-primary:hover{background:var(--green-dark);border-color:var(--green-dark);color:#0a0a0a}
+
+@media(max-width:900px){
+  .precios-grid{grid-template-columns:1fr;max-width:480px}
+}
+
+/* ==========================================
+   NAVBAR
+========================================== */
+#topnav{
+  position:sticky;top:0;z-index:999;
+  background:rgba(10,10,10,.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(184,255,0,.12);
+  padding:0 24px;
+  height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-logo{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:800;font-size:20px;letter-spacing:-0.03em;
+  color:#fff;text-decoration:none;
+}
+.nav-logo span{color:var(--green)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-nav-login{
+  background:transparent;
+  border:1.5px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.85);
+  border-radius:8px;padding:7px 18px;
+  font-size:13px;font-weight:600;
+  cursor:pointer;text-decoration:none;
+  transition:border-color .2s,color .2s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.btn-nav-login:hover{border-color:rgba(255,255,255,.45);color:#fff}
+.btn-nav-cta{
+  background:var(--green);
+  color:#0a0a0a;
+  border:none;border-radius:8px;
+  padding:8px 20px;
+  font-size:13px;font-weight:700;
+  cursor:pointer;text-decoration:none;
+  transition:background .2s,transform .2s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.btn-nav-cta:hover{background:var(--green-dark);transform:translateY(-1px)}
+@media(max-width:540px){
+  .nav-logo{font-size:17px}
+  .btn-nav-login{padding:6px 12px;font-size:12px}
+  .btn-nav-cta{padding:7px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="topnav">
+  <a href="#" class="nav-logo">Loom<span>i</span></a>
+  <div class="nav-actions">
+    <a href="https://app.loomi.mx:44304" class="btn-nav-login">Iniciar sesión</a>
+    <a href="https://app.loomi.mx:44304" class="btn-nav-cta">Comenzar →</a>
+  </div>
+</nav>
+
+<!-- ==========================================
+     1. HERO
+========================================== -->
+<section id="hero">
+  <div class="hero-inner">
+    <!-- Copy -->
+    <div>
+      <div class="hero-badge">
+        <span class="led"></span>
+        Demo en Vivo · Sin registro
+      </div>
+      <h1>¿Tu negocio responde leads así de <span class="accent">rápido</span>?</h1>
+      <p class="hero-sub">La mayoría de negocios tarda horas en responder WhatsApp. Para entonces el lead ya se fue. Prueba ahora mismo cómo un agente IA lo atiende en segundos.</p>
+      <div class="hero-pills">
+        <span class="hero-pill"><span class="dot"></span>Responde en segundos</span>
+        <span class="hero-pill"><span class="dot"></span>Califica leads solo</span>
+        <span class="hero-pill"><span class="dot"></span>Activo 24/7</span>
+      </div>
+      <a href="#demoSection" class="btn-hero">Hablar con el agente →</a>
+    </div>
+
+    <!-- Animated Chat Window -->
+    <div class="hero-chat-window">
+      <div class="macos-bar">
+        <div class="macos-dots">
+          <span class="dot-r"></span>
+          <span class="dot-y"></span>
+          <span class="dot-g"></span>
+        </div>
+        <span class="macos-title">WhatsApp Business</span>
+        <span class="macos-live"><span class="led"></span>EN VIVO</span>
+      </div>
+      <div class="wa-header-bar">
+        <div class="wa-avatar" style="width:40px;height:40px;font-size:20px;">🤖</div>
+        <div>
+          <div class="wa-name" style="font-size:15px;">Asistente IA</div>
+          <div class="wa-status-line"><span class="wa-online-dot"></span>en línea ahora</div>
+        </div>
+      </div>
+      <div class="hero-messages" id="heroChatMessages"></div>
+      <div class="hero-input-bar">
+        <input type="text" placeholder="Escribe un mensaje..." disabled>
+        <div class="hero-send">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#0a0a0a"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     2. DOLOR
+========================================== -->
+<section id="dolor">
+  <div class="container">
+    <div class="dolor-header">
+      <span class="kicker kicker-red">El problema que todos tienen</span>
+      <h2>Los leads llegan. Nadie los atiende a tiempo.</h2>
+    </div>
+    <div class="dolor-grid">
+      <div class="dolor-card">
+        <div class="dolor-emoji">⏰</div>
+        <h3>Respuesta lenta = lead muerto</h3>
+        <p>Si tardas más de 5 minutos en responder, pierdes el 80% de tus prospectos. La competencia que responde en segundos se los lleva antes de que abras tu teléfono.</p>
+        <span class="error-tag">ERROR #1</span>
+      </div>
+      <div class="dolor-card">
+        <div class="dolor-emoji">🤷‍♂️</div>
+        <h3>Sin calificación, sin cierre</h3>
+        <p>Tu equipo gasta horas en leads que nunca iban a comprar. Sin calificación automática, cada vendedor es un filtro manual, caro y lento que frena tu crecimiento.</p>
+        <span class="error-tag">ERROR #2</span>
+      </div>
+      <div class="dolor-card">
+        <div class="dolor-emoji">🔁</div>
+        <h3>Sin respuesta a tiempo, sin venta</h3>
+        <p>El 63% de los leads que no compran hoy comprarán en 3 meses. Si nadie los atiende cuando preguntan, ese dinero se lo lleva quien sí responde.</p>
+        <span class="error-tag">ERROR #3</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     3. DEMO SECTION
+========================================== -->
+<section id="demoSection">
+  <div class="demo-inner">
+    <div class="demo-head-text">
+      <span class="kicker kicker-green">Demo sin registro</span>
+      <h2>Habla con <span class="accent serif-italic">Loomi</span> ahora mismo</h2>
+      <p>Escríbele como si fueras un cliente real. Pregúntale lo que quieras. Mira cómo vende.</p>
+    </div>
+
+    <!-- Chatbox -->
+    <div class="demo-chat-box">
+      <div class="demo-wa-header">
+        <div class="wa-avatar" style="width:44px;height:44px;font-size:22px;">🤖</div>
+        <div class="demo-wa-info">
+          <div class="name">Agente IA de Ventas</div>
+          <div class="status">Setter &amp; Closer · en línea</div>
+        </div>
+        <span class="live-badge"><span class="led"></span>EN VIVO</span>
+      </div>
+      <div id="demoChatMessages"></div>
+      <!-- Key config bar (oculta por defecto) -->
+      <div class="key-bar" id="keyBar" style="display:none">
+        <span class="key-bar-label">🔑 API Key de Anthropic</span>
+        <input type="password" id="keyInput" placeholder="sk-ant-api03-..." autocomplete="off">
+        <button id="keySave">Guardar</button>
+      </div>
+
+      <div class="quick-replies" id="quickReplies">
+        <button class="qr-btn" onclick="sendQuickReply('👋 Me interesa saber más')">👋 Me interesa saber más</button>
+        <button class="qr-btn" onclick="sendQuickReply('💰 ¿Cuánto cuesta?')">💰 ¿Cuánto cuesta?</button>
+        <button class="qr-btn" onclick="sendQuickReply('🤔 ¿Cómo funciona?')">🤔 ¿Cómo funciona?</button>
+        <button class="qr-btn" onclick="sendQuickReply('💎 ¿Qué plan me recomiendas?')">💎 ¿Qué plan me recomiendas?</button>
+      </div>
+      <div class="demo-input-bar">
+        <input type="text" id="demoInput" placeholder="Escribe tu mensaje...">
+        <button id="demoSend" aria-label="Enviar">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Conversion block -->
+    <div class="conversion-block">
+      <!-- Hook tipográfico -->
+      <div class="hook-section">
+        <div class="hook-eyebrow">Lo que acabas de probar</div>
+        <div class="hook-heading">
+          Esto es exactamente lo que<br>
+          <span class="opaque">tus leads experimentarían</span><br>
+          desde el primer mensaje.
+        </div>
+      </div>
+
+      <!-- Incluye -->
+      <div class="includes-grid">
+        <div class="includes-item"><span class="includes-check">✓</span>Entrenado con tu negocio</div>
+        <div class="includes-item"><span class="includes-check">✓</span>Conectado a tu WhatsApp</div>
+        <div class="includes-item"><span class="includes-check">✓</span>Activo en 5 días hábiles</div>
+        <div class="includes-item"><span class="includes-check">✓</span>Ajustes del primer mes</div>
+      </div>
+
+      <!-- Testimonio -->
+      <div class="testimonial-block">
+        <div class="stars">★★★★★</div>
+        <div class="t-quote">"Antes respondíamos leads al día siguiente. Ahora el agente los atiende en segundos y llegan precalificados. Cerramos 3 veces más citas con el mismo presupuesto de anuncios."</div>
+        <div class="t-author">
+          <div class="t-ava">👨‍⚕️</div>
+          <div>
+            <div class="t-name">Dr. Marco A.</div>
+            <div class="t-role">Clínica Dental · Ciudad de México</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA final -->
+      <div class="cta-final">
+        <div class="cta-step-label">Siguiente paso</div>
+        <h3>¿Listo para tener este agente<br>en tu negocio? <span class="green">Empieza hoy.</span></h3>
+        <p>Elige tu plan y activa tu agente en 5 días hábiles.</p>
+        <a href="#precios" class="btn-pill-white">
+          <span class="led"></span>
+          Ver planes y precios
+        </a>
+        <div><span class="urgency-banner">⚡ Cupo limitado — solo tomamos 5 implementaciones nuevas por semana</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     4. IMPACTO
+========================================== -->
+<section id="impacto">
+  <div class="container">
+    <div class="impacto-header">
+      <span class="kicker kicker-red">Datos reales · promedio del sector</span>
+      <h2>¿Cuánto estás perdiendo cada mes sin un <span class="accent">agente</span>?</h2>
+      <p class="impacto-sub">Selecciona tu sector.</p>
+    </div>
+
+    <div class="sector-tabs">
+      <button class="sector-tab active" data-sector="dental">🦷 Dental</button>
+      <button class="sector-tab" data-sector="gym">💪 Gym</button>
+      <button class="sector-tab" data-sector="inmobiliaria">🏠 Inmobiliaria</button>
+      <button class="sector-tab" data-sector="ecommerce">🛒 Ecommerce</button>
+      <button class="sector-tab" data-sector="restaurante">🍽️ Restaurante</button>
+      <button class="sector-tab" data-sector="academia">🎓 Academia</button>
+    </div>
+
+    <div class="impact-card">
+      <div class="impact-label">Ventas perdidas al mes por falta de seguimiento</div>
+      <div class="impact-number" id="impactNumber">$0</div>
+      <div class="impact-context" id="impactContext"></div>
+      <div class="impact-pills" id="impactPills"></div>
+    </div>
+
+    <!-- Comparativa -->
+    <div class="comparison-wrap">
+      <div class="comp-grid">
+        <div class="comp-col comp-bad">
+          <span class="comp-badge comp-badge-red">Sin Agente IA</span>
+          <ul class="comp-list">
+            <li><span class="ci">✗</span>Respuesta en horas o al día siguiente</li>
+            <li><span class="ci">✗</span>Lead frío, sin contexto ni calificación</li>
+            <li><span class="ci">✗</span>Sin calificación de leads</li>
+            <li><span class="ci">✗</span>Equipo gasta tiempo calificando</li>
+            <li><span class="ci">✗</span>Inactivo por las noches y fines de semana</li>
+          </ul>
+        </div>
+        <div class="comp-vs-col">
+          <div class="comp-vs-circle">VS</div>
+        </div>
+        <div class="comp-col comp-good">
+          <span class="comp-badge comp-badge-green">Con Agente IA</span>
+          <ul class="comp-list">
+            <li><span class="ci" style="color:var(--green)">✓</span>Responde en segundos, 24/7</li>
+            <li><span class="ci" style="color:var(--green)">✓</span>Lead calificado antes de hablar con humano</li>
+            <li><span class="ci" style="color:var(--green)">✓</span>Lead calificado y listo para cerrar</li>
+            <li><span class="ci" style="color:var(--green)">✓</span>Equipo solo cierra, no filtra</li>
+            <li><span class="ci" style="color:var(--green)">✓</span>Activo 24/7, nunca descansa</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     5. CRM
+========================================== -->
+<section id="crm">
+  <div class="crm-inner" style="padding:0 24px">
+    <div class="crm-top">
+      <div>
+        <span class="kicker kicker-green">Más que un chatbot</span>
+        <h2>Cada lead entra a tu CRM y avanza <span class="accent">solo</span></h2>
+        <p class="crm-desc">No solo responde mensajes — organiza, califica y notifica a tu equipo. Todo en automático, sin que nadie tenga que mover un dedo.</p>
+      </div>
+      <div class="crm-black-box">
+        <div class="crm-item">
+          <div class="crm-ico">👤</div>
+          <div>
+            <div class="crm-item-title">Contacto creado al instante</div>
+            <div class="crm-item-desc">Cada lead nuevo entra automáticamente a tu base de datos con nombre, teléfono y canal de origen.</div>
+          </div>
+        </div>
+        <div class="crm-item">
+          <div class="crm-ico">🏷️</div>
+          <div>
+            <div class="crm-item-title">Etiquetas automáticas</div>
+            <div class="crm-item-desc">Caliente, frío, interesado, presupuesto alto — el agente etiqueta en tiempo real según la conversación.</div>
+          </div>
+        </div>
+        <div class="crm-item">
+          <div class="crm-ico">💬</div>
+          <div>
+            <div class="crm-item-title">Conversación registrada al instante</div>
+            <div class="crm-item-desc">Cada mensaje queda guardado en el perfil del contacto, listo para que tu equipo retome con contexto completo.</div>
+          </div>
+        </div>
+        <div class="crm-item">
+          <div class="crm-ico">🔔</div>
+          <div>
+            <div class="crm-item-title">Notificación a tu equipo</div>
+            <div class="crm-item-desc">Cuando un lead está listo para cerrar, tu equipo recibe alerta por WhatsApp o email al instante.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="pipeline-scroll-outer">
+      <div class="pipeline-scroll-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        Desliza para ver más etapas
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    <div class="pipeline-wrap">
+      <div class="pipeline">
+        <div class="pipe-col">
+          <div class="pipe-col-header ph-blue">🔵 Nuevo lead</div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">María G.</div>
+            <div class="pipe-card-detail">Interesada en tratamiento dental</div>
+            <div class="pipe-card-time">Hace 2 minutos</div>
+            <span class="pipe-agent-badge">🤖 Agente respondió</span>
+          </div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">Carlos M.</div>
+            <div class="pipe-card-detail">Consulta precio membresía</div>
+            <div class="pipe-card-time">Hace 8 minutos</div>
+            <span class="pipe-agent-badge">🤖 Agente respondió</span>
+          </div>
+        </div>
+        <div class="pipe-col">
+          <div class="pipe-col-header ph-yellow">🟡 En contacto</div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">Ana R.</div>
+            <div class="pipe-card-detail">Preguntó por disponibilidad</div>
+            <div class="pipe-card-time">Hace 15 minutos</div>
+            <span class="pipe-agent-badge">🤖 Calificando</span>
+          </div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">Luis P.</div>
+            <div class="pipe-card-detail">Revisando opciones de precio</div>
+            <div class="pipe-card-time">Hace 22 minutos</div>
+            <span class="pipe-agent-badge">🤖 Seguimiento activo</span>
+          </div>
+        </div>
+        <div class="pipe-col">
+          <div class="pipe-col-header ph-purple">🟣 Calificado</div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">Patricia V.</div>
+            <div class="pipe-card-detail">Presupuesto confirmado ✓</div>
+            <div class="pipe-card-time">Hace 35 minutos</div>
+            <span class="pipe-agent-badge">🤖 Listo para cerrar</span>
+          </div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">Roberto S.</div>
+            <div class="pipe-card-detail">Urgencia alta, decide hoy</div>
+            <div class="pipe-card-time">Hace 1 hora</div>
+            <span class="pipe-agent-badge">🤖 Escalado a asesor</span>
+          </div>
+        </div>
+        <div class="pipe-col">
+          <div class="pipe-col-header ph-green">🟢 Cita agendada</div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">Sofía L.</div>
+            <div class="pipe-card-detail">Lun 10:00 am confirmada</div>
+            <div class="pipe-card-time">Cita confirmada</div>
+            <span class="pipe-agent-badge">🤖 Cita confirmada</span>
+          </div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">Miguel T.</div>
+            <div class="pipe-card-detail">Mié 4:00 pm confirmada</div>
+            <div class="pipe-card-time">Recordatorio enviado</div>
+            <span class="pipe-agent-badge">🤖 Recordatorio activo</span>
+          </div>
+        </div>
+        <div class="pipe-col">
+          <div class="pipe-col-header ph-lgreen">✅ Cerrado 🎉</div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">Diego F.</div>
+            <div class="pipe-card-detail">Plan anual — $4,200</div>
+            <div class="pipe-card-time">Esta semana</div>
+            <span class="pipe-agent-badge">🤖 Iniciado por IA</span>
+          </div>
+          <div class="pipe-card">
+            <div class="pipe-card-name">Valeria H.</div>
+            <div class="pipe-card-detail">Consulta + tratamiento</div>
+            <div class="pipe-card-time">Esta semana</div>
+            <span class="pipe-agent-badge">🤖 Iniciado por IA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /pipeline-scroll-outer -->
+
+    <!-- Features grid -->
+    <div class="features-grid">
+      <div class="feat-item">
+        <div class="feat-ico">🗂️</div>
+        <div class="feat-title">CRM completo</div>
+        <div class="feat-desc">Historial completo de cada conversación y etapa del lead en un solo lugar.</div>
+        <span class="auto-badge">✓ 100% automático</span>
+      </div>
+      <div class="feat-item">
+        <div class="feat-ico">🔔</div>
+        <div class="feat-title">Notificaciones inteligentes</div>
+        <div class="feat-desc">Tu equipo recibe alerta solo cuando el lead está listo para cerrar.</div>
+        <span class="auto-badge">✓ 100% automático</span>
+      </div>
+      <div class="feat-item">
+        <div class="feat-ico">🏷️</div>
+        <div class="feat-title">Calificación automática</div>
+        <div class="feat-desc">El agente detecta interés, urgencia y presupuesto — y etiqueta al lead sin intervención humana.</div>
+        <span class="auto-badge">✓ 100% automático</span>
+      </div>
+      <div class="feat-item">
+        <div class="feat-ico">📊</div>
+        <div class="feat-title">Dashboard</div>
+        <div class="feat-desc">Ve en tiempo real cuántos leads entran, en qué etapa están y cuántos convierten.</div>
+        <span class="auto-badge">✓ 100% automático</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     6B. ASESORÍA EN ADS
+========================================== -->
+<section id="asesoria">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="asesoria-header">
+      <div class="asesoria-tag">🚀 Incluido en todos los planes · Sin costo adicional</div>
+      <h2 class="asesoria-h2">Loomi responde.<br>Pero necesita <span class="accent">prospectos.</span></h2>
+      <p class="asesoria-lead">El 76% de los mexicanos contactan negocios por WhatsApp antes de comprar. Meta Ads y TikTok Ads son las plataformas donde capturarlos. Por eso en cada plan de Loomi incluimos una <strong>estrategia de anuncios personalizada para tu negocio</strong>, diseñada por un especialista en tráfico pagado.</p>
+    </div>
+
+    <div class="asesoria-grid">
+      <!-- Left: what's included -->
+      <div class="asesoria-copy">
+        <div class="asesoria-includes-title">Tu estrategia personalizada incluye:</div>
+        <ul class="asesoria-includes">
+          <li><span class="asesoria-item-num">01</span><div><strong>4 sesiones en vivo por mes</strong><span>Trabajo directo contigo, sin grabaciones genéricas</span></div></li>
+          <li><span class="asesoria-item-num">02</span><div><strong>Diagnóstico de tus anuncios actuales</strong><span>Detectamos dónde pierdes dinero y lo corregimos</span></div></li>
+          <li><span class="asesoria-item-num">03</span><div><strong>Plan de crecimiento personalizado</strong><span>Roadmap claro por etapa de tu negocio</span></div></li>
+          <li><span class="asesoria-item-num">04</span><div><strong>Análisis de métricas y optimización</strong><span>CTR, CPL, ROAS — decisiones con datos reales</span></div></li>
+          <li><span class="asesoria-item-num">05</span><div><strong>Creación y escalado de anuncios</strong><span>Creativos, copys y estructuras que convierten</span></div></li>
+          <li><span class="asesoria-item-num">06</span><div><strong>Configuraciones técnicas avanzadas</strong><span>Píxel, CAPI, audiencias personalizadas y lookalike</span></div></li>
+        </ul>
+        <a href="https://app.loomi.mx:44304" class="asesoria-cta">Quiero mi plan con asesoría incluida →</a>
+      </div>
+
+      <!-- Right: value + plan breakdown -->
+      <div class="asesoria-right">
+        <div class="asesoria-value-box">
+          <div class="asesoria-value-label">¿Cuánto cobra una agencia por esto?</div>
+          <div class="asesoria-value-amount">$5,000 – $15,000 <span>MXN/mes</span></div>
+          <div class="asesoria-value-sub">Ese es el precio real de un especialista en media buying. Con Loomi lo tienes incluido desde el primer día.</div>
+        </div>
+        <div class="asesoria-plans-grid">
+          <div class="asesoria-plan-pill">
+            <div class="app-pill-name">Starter</div>
+            <div class="app-pill-dur">1 mes</div>
+            <div class="app-pill-sub">de asesoría</div>
+          </div>
+          <div class="asesoria-plan-pill asesoria-pill-featured">
+            <div class="app-pill-name">Pro ⭐</div>
+            <div class="app-pill-dur accent">3 meses</div>
+            <div class="app-pill-sub">de asesoría</div>
+          </div>
+          <div class="asesoria-plan-pill">
+            <div class="app-pill-name">Business</div>
+            <div class="app-pill-dur">Vitalicio</div>
+            <div class="app-pill-sub">sin límite</div>
+          </div>
+        </div>
+        <div class="asesoria-disclaimer">
+          <span>⚡</span>
+          <p>Esto <strong>no es un PDF ni un curso grabado.</strong> Son sesiones en vivo, revisión de tus campañas reales y acompañamiento directo hasta que tus anuncios sean rentables.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==========================================
+     6. PRECIOS
+========================================== -->
+<section id="precios">
+  <div class="container">
+    <div class="precios-head">
+      <span class="kicker kicker-green">Planes y precios</span>
+      <h2 class="precios-h2">Elige tu plan. <span class="accent">Empieza hoy.</span></h2>
+      <p class="precios-sub">Precio bloqueado de por vida si contratas en los próximos 30 días.</p>
+    </div>
+
+    <div class="precios-grid">
+
+      <!-- STARTER -->
+      <div class="plan-card">
+        <div class="plan-top">
+          <div class="plan-name">Starter</div>
+          <div class="plan-desc">Para negocios que inician</div>
+          <div class="plan-agents"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> hasta 2 agentes</div>
+        </div>
+        <div class="plan-price-wrap">
+          <div class="plan-price-old">$399 MXN/mes</div>
+          <div class="plan-price-row">
+            <span class="plan-currency">$</span>
+            <span class="plan-price">299</span>
+            <span class="plan-period">MXN<br>por mes</span>
+            <span class="plan-discount">-25%</span>
+          </div>
+        </div>
+        <div class="plan-lock">
+          <span class="lock-ico">🔒</span>
+          <span><strong>Precio bloqueado de por vida.</strong> Si contratas en los próximos 30 días, pagas $299 para siempre, aunque el precio suba.</span>
+        </div>
+        <ul class="plan-features">
+          <li class="feat-yes">1 número WhatsApp Business</li>
+          <li class="feat-yes">2 agentes simultáneos</li>
+          <li class="feat-yes">Agente IA avanzado con contexto</li>
+          <li class="feat-yes">Pipeline Kanban visual</li>
+          <li class="feat-yes">Etiquetas y notas en conversación</li>
+          <li class="feat-yes">Historial ilimitado de chats</li>
+          <li class="feat-no">IA avanzada</li>
+          <li class="feat-no">Reportes</li>
+        </ul>
+        <div class="plan-bonus">
+          <span class="plan-bonus-ico">🎯</span>
+          <div>
+            <div class="plan-bonus-label">INCLUIDO · BONO EXCLUSIVO</div>
+            <div class="plan-bonus-text"><strong>1 mes</strong> de asesoría experta en Meta Ads y TikTok Ads para llenar tu embudo de prospectos</div>
+          </div>
+        </div>
+        <a href="https://app.loomi.mx:44304" class="plan-btn plan-btn-outline">Empezar con Starter</a>
+      </div>
+
+      <!-- PRO -->
+      <div class="plan-card plan-featured">
+        <div class="plan-popular-badge">☆ Más popular</div>
+        <div class="plan-top">
+          <div class="plan-name">Pro</div>
+          <div class="plan-desc">Para equipos en crecimiento</div>
+          <div class="plan-agents"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> hasta 5 agentes</div>
+        </div>
+        <div class="plan-price-wrap">
+          <div class="plan-price-old">$699 MXN/mes</div>
+          <div class="plan-price-row">
+            <span class="plan-currency">$</span>
+            <span class="plan-price">499</span>
+            <span class="plan-period">MXN<br>por mes</span>
+            <span class="plan-discount">-29%</span>
+          </div>
+        </div>
+        <div class="plan-lock plan-lock-featured">
+          <span class="lock-ico">🔒</span>
+          <span><strong>Precio bloqueado de por vida.</strong> Si contratas en los próximos 30 días, pagas $499 para siempre, aunque el precio suba.</span>
+        </div>
+        <ul class="plan-features">
+          <li class="feat-yes">Todo lo del plan Starter</li>
+          <li class="feat-yes">5 agentes simultáneos</li>
+          <li class="feat-yes">Bot IA avanzado con contexto</li>
+          <li class="feat-yes">Etapas de pipeline personalizadas</li>
+          <li class="feat-yes">Asignación automática de chats</li>
+          <li class="feat-yes">Reportes de conversaciones</li>
+          <li class="feat-yes">Soporte prioritario</li>
+          <li class="feat-no">Múltiples números</li>
+        </ul>
+        <div class="plan-bonus plan-bonus-featured">
+          <span class="plan-bonus-ico">🎯</span>
+          <div>
+            <div class="plan-bonus-label">INCLUIDO · BONO EXCLUSIVO</div>
+            <div class="plan-bonus-text"><strong>3 meses</strong> de asesoría experta en Meta Ads y TikTok Ads — campañas rentables desde el primer mes</div>
+          </div>
+        </div>
+        <a href="https://app.loomi.mx:44304" class="plan-btn plan-btn-primary">Empezar con Pro</a>
+      </div>
+
+      <!-- BUSINESS -->
+      <div class="plan-card">
+        <div class="plan-top">
+          <div class="plan-name">Business</div>
+          <div class="plan-desc">Para operaciones mayores</div>
+          <div class="plan-agents"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> agentes ilimitados</div>
+        </div>
+        <div class="plan-price-wrap">
+          <div class="plan-price-old">$1,099 MXN/mes</div>
+          <div class="plan-price-row">
+            <span class="plan-currency">$</span>
+            <span class="plan-price">799</span>
+            <span class="plan-period">MXN<br>por mes</span>
+            <span class="plan-discount">-27%</span>
+          </div>
+        </div>
+        <div class="plan-lock">
+          <span class="lock-ico">🔒</span>
+          <span><strong>Precio bloqueado de por vida.</strong> Si contratas en los próximos 30 días, pagas $799 para siempre, aunque el precio suba.</span>
+        </div>
+        <ul class="plan-features">
+          <li class="feat-yes">Todo lo del plan Pro</li>
+          <li class="feat-yes">Agentes ilimitados</li>
+          <li class="feat-yes">Múltiples números WhatsApp</li>
+          <li class="feat-yes">IA completamente personalizable</li>
+          <li class="feat-yes">Onboarding personalizado incluido</li>
+          <li class="feat-yes">Panel de métricas avanzado</li>
+          <li class="feat-yes">Soporte directo por WhatsApp</li>
+        </ul>
+        <div class="plan-bonus">
+          <span class="plan-bonus-ico">🎯</span>
+          <div>
+            <div class="plan-bonus-label">INCLUIDO · BONO VITALICIO</div>
+            <div class="plan-bonus-text"><strong>Asesoría permanente</strong> en Meta Ads y TikTok Ads — tu sistema de captación nunca se detiene</div>
+          </div>
+        </div>
+        <a href="https://app.loomi.mx:44304" class="plan-btn plan-btn-outline">Empezar con Business</a>
+      </div>
+
+    </div><!-- /precios-grid -->
+  </div>
+</section>
+
+<!-- ==========================================
+     7. CTA WHATSAPP
+========================================== -->
+<section id="cta-wa">
+  <div class="container">
+    <h2>¿Quieres este agente en tu negocio?</h2>
+    <a href="https://app.loomi.mx:44304" class="btn-wa">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Escribir por WhatsApp
+    </a>
+  </div>
+</section>
+
+<!-- ==========================================
+     7. CÓMO FUNCIONA
+========================================== -->
+<section id="como">
+  <div class="container">
+    <h2>De demo a tu WhatsApp real en 5 días</h2>
+    <div class="steps-wrap">
+      <div class="steps-line"></div>
+      <div class="steps-grid">
+        <div class="step-item">
+          <div class="step-circle">1</div>
+          <div class="step-title">Auditoría</div>
+          <div class="step-desc">Revisamos tu proceso de ventas, canales y puntos de fricción. Una llamada de 20 minutos es suficiente.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">2</div>
+          <div class="step-title">Entrenamiento</div>
+          <div class="step-desc">Entrenamos al agente con tu negocio: productos, precios, objeciones comunes y tono de tu marca.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">3</div>
+          <div class="step-title">Integración</div>
+          <div class="step-desc">Conectamos el agente a tu WhatsApp Business API, CRM y calendario. Sin interrumpir tu operación.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">4</div>
+          <div class="step-title">Resultados</div>
+          <div class="step-desc">En el primer mes ajustamos y optimizamos el agente con datos reales de tus conversaciones.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     8. FAQ
+========================================== -->
+<section id="faq">
+  <div class="faq-inner">
+    <h2>Preguntas frecuentes</h2>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <span class="faq-q-text">¿El cliente se dará cuenta que habla con una IA?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-body">
+          El agente está entrenado para comunicarse de forma natural, usando el tono y estilo de tu marca. La mayoría de los usuarios no perciben diferencia con un asesor humano — de hecho, muchos valoran la rapidez y consistencia de las respuestas. Si el cliente pregunta directamente, el agente puede seguir el protocolo que tú definas.
+          <div class="faq-chips">
+            <span class="chip chip-g">Respuestas naturales</span>
+            <span class="chip chip-b">Tono personalizable</span>
+            <span class="chip chip-y">Protocolo a tu medida</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <span class="faq-q-text">¿Qué pasa si el cliente hace una pregunta que el agente no sabe?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-body">
+          El agente reconoce los límites de su conocimiento y escala la conversación a un asesor humano de forma transparente. Recibes una notificación inmediata para tomar el control cuando sea necesario. Con el tiempo, cada conversación nueva es información para mejorar el entrenamiento del agente.
+          <div class="faq-chips">
+            <span class="chip chip-g">Escalado automático</span>
+            <span class="chip chip-b">Notificación inmediata</span>
+            <span class="chip chip-y">Aprendizaje continuo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <span class="faq-q-text">¿Cuánto cuesta la implementación?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-body">
+          El costo depende del plan que elijas. Tenemos tres opciones: Starter ($299/mes), Pro ($499/mes) y Business ($799/mes). Todos incluyen precio bloqueado de por vida si contratas en los primeros 30 días — y todos incluyen asesoría personalizada en Meta Ads y TikTok Ads. La mayoría de nuestros clientes recuperan la inversión en el primer mes.
+          <div class="faq-chips">
+            <span class="chip chip-g">Diagnóstico gratuito</span>
+            <span class="chip chip-b">Propuesta personalizada</span>
+            <span class="chip chip-y">ROI en el primer mes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <span class="faq-q-text">¿Cuánto tarda en estar activo en mi WhatsApp?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-body">
+          El proceso completo toma entre 3 y 5 días hábiles desde que aprobamos la propuesta. Esto incluye el entrenamiento del agente con tu negocio, la integración técnica con WhatsApp Business API y las pruebas de calidad. Sin interrupciones en tu operación actual.
+          <div class="faq-chips">
+            <span class="chip chip-g">3–5 días hábiles</span>
+            <span class="chip chip-b">Sin interrupciones</span>
+            <span class="chip chip-y">Pruebas incluidas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <span class="faq-q-text">¿Puedo pausarlo o cancelarlo?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-body">
+          Sí. Puedes pausar el agente en cualquier momento desde tu panel de control, sin necesidad de contactarnos. Si decides cancelar, el proceso es directo y sin penalizaciones — aunque honestamente, una vez que ves los resultados en el primer mes, ese escenario raramente se da.
+          <div class="faq-chips">
+            <span class="chip chip-g">Control total</span>
+            <span class="chip chip-b">Sin contrato forzoso</span>
+            <span class="chip chip-y">Cancelación simple</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     9. FOOTER
+========================================== -->
+<footer>
+  <p>© 2024 Agente IA WhatsApp — Todos los derechos reservados &nbsp;·&nbsp; <a href="https://wa.me/5215512345678">+52 55 1234 5678</a></p>
+</footer>
+
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
+<script>
+/* ==========================================
+   HERO ANIMATION
+========================================== */
+const heroConversation = [
+  { type:'in',  text:'Hola, ¿me pueden dar info sobre sus servicios?', delay:900 },
+  { type:'out', text:'¡Hola! Claro que sí 😊\n\nPara orientarte mejor — ¿qué tipo de negocio tienes y cuál es tu principal reto ahorita?', delay:2400, typingBefore:1100 },
+  { type:'in',  text:'Tengo una clínica dental, el problema es que los leads no convierten', delay:4200 },
+  { type:'out', text:'Entiendo perfectamente. Ese es el dolor #1 en clínicas.\n\n¿Cuántos leads llegan al mes aproximadamente y cuánto tardas en responderles?', delay:6000, typingBefore:1000 },
+  { type:'in',  text:'Como 80 al mes, pero respondemos al día siguiente', delay:7800 },
+  { type:'out', text:'Ahí está el problema 📍 Con ese tiempo de respuesta pierdes el 70%+ de tus leads antes de poder hablar con ellos.\n\n¿Tienes 20 minutos esta semana para ver cómo lo resolveríamos?', delay:9800, typingBefore:1100 },
+];
+
+const heroChatEl = document.getElementById('heroChatMessages');
+let heroTimers = [];
+
+function heroAddMsg(type, text) {
+  const d = document.createElement('div');
+  d.className = 'msg msg-' + type;
+  d.textContent = text;
+  heroChatEl.appendChild(d);
+  heroChatEl.scrollTop = heroChatEl.scrollHeight;
+}
+
+function heroShowTyping() {
+  const d = document.createElement('div');
+  d.className = 'typing-dots';
+  d.id = 'hero-typing';
+  d.innerHTML = '<span></span><span></span><span></span>';
+  heroChatEl.appendChild(d);
+  heroChatEl.scrollTop = heroChatEl.scrollHeight;
+}
+
+function heroHideTyping() {
+  const el = document.getElementById('hero-typing');
+  if (el) el.remove();
+}
+
+function startHeroAnim() {
+  heroTimers.forEach(clearTimeout);
+  heroTimers = [];
+  heroChatEl.innerHTML = '';
+
+  heroConversation.forEach(({ type, text, delay, typingBefore }) => {
+    if (type === 'out' && typingBefore) {
+      heroTimers.push(setTimeout(() => heroShowTyping(), delay - typingBefore));
+      heroTimers.push(setTimeout(() => { heroHideTyping(); heroAddMsg(type, text); }, delay));
+    } else {
+      heroTimers.push(setTimeout(() => heroAddMsg(type, text), delay));
+    }
+  });
+
+  heroTimers.push(setTimeout(startHeroAnim, 18000));
+}
+
+startHeroAnim();
+
+/* ==========================================
+   DEMO CHAT
+========================================== */
+const _DEFAULT_KEY = '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';
+function _lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function _lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+let API_KEY = (_lsGet('agente_api_key') || _DEFAULT_KEY).trim();
+
+const SYSTEM_PROMPT = `Eres un agente de ventas IA de alto rendimiento. Eres experto en hacer de setter y closer.
+
+FRAMEWORK de conversación:
+1. CONECTAR — saluda cálido, haz sentir al lead escuchado.
+2. DESCUBRIR — haz UNA pregunta para entender su situación o dolor.
+3. CALIFICAR — presupuesto disponible, urgencia, quién decide.
+4. PRESENTAR — beneficio directo relacionado con su dolor específico.
+5. MANEJAR OBJECIONES — con empatía + reencuadre, nunca con descuento inmediato.
+6. LLAMADA A LA ACCIÓN — proponer el siguiente paso concreto (llamada, cita, demo).
+
+REGLAS INAMOVIBLES:
+- Máximo 3 líneas por mensaje. Esto es WhatsApp, no un correo.
+- Una sola pregunta por mensaje. Nunca dos.
+- Español mexicano, tono amigable y profesional.
+- Emojis: naturales, 1 por mensaje máximo.
+- Si el lead pregunta el precio antes de calificar, redirige: "Depende de lo que necesitas — cuéntame un poco más sobre tu situación."
+- Si el lead está listo, propón fecha y hora para una llamada.
+- NUNCA digas que eres IA. Eres un asesor de ventas.
+- NUNCA inventes datos específicos a menos que el usuario los mencione.
+- Si preguntan de qué empresa eres, di que eres el asistente de un equipo de soluciones digitales y pide que cuente más sobre su negocio.`;
+
+const WELCOME = '¡Hola! 👋 Bienvenido al demo del agente IA.\n\nEscríbeme como si fueras un cliente — pregunta lo que quieras. Voy a mostrarte cómo maneja una conversación de ventas real.';
+
+const demoChatEl   = document.getElementById('demoChatMessages');
+const demoInputEl  = document.getElementById('demoInput');
+const demoSendEl   = document.getElementById('demoSend');
+const quickReplies = document.getElementById('quickReplies');
+let hist = [];
+let firstMsg = false;
+let busy = false;
+
+function demoAddMsg(role, text) {
+  const d = document.createElement('div');
+  d.className = 'msg msg-' + (role === 'user' ? 'out' : 'in');
+  d.style.whiteSpace = 'pre-line';
+  d.textContent = text;
+  demoChatEl.appendChild(d);
+  demoChatEl.scrollTop = demoChatEl.scrollHeight;
+}
+
+function demoShowTyping() {
+  if (document.getElementById('demo-typing')) return;
+  const d = document.createElement('div');
+  d.className = 'typing-dots';
+  d.id = 'demo-typing';
+  d.innerHTML = '<span></span><span></span><span></span>';
+  demoChatEl.appendChild(d);
+  demoChatEl.scrollTop = demoChatEl.scrollHeight;
+}
+
+function demoHideTyping() {
+  const el = document.getElementById('demo-typing');
+  if (el) el.remove();
+}
+
+function setLoading(state) {
+  busy = state;
+  demoInputEl.disabled = state;
+  demoSendEl.disabled = state;
+}
+
+async function sendMessage(text) {
+  text = text.trim();
+  if (busy || !text) return;
+
+  if (!API_KEY) {
+    showKeyBar();
+    demoAddMsg('assistant', '🔑 Necesitas ingresar tu API key de Anthropic para usar el chat. Aparece el campo arriba del input.');
+    return;
+  }
+
+  if (!firstMsg) {
+    firstMsg = true;
+    quickReplies.style.display = 'none';
+  }
+
+  demoAddMsg('user', text);
+  hist.push({ role: 'user', content: text });
+  demoInputEl.value = '';
+  setLoading(true);
+  demoShowTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        system: SYSTEM_PROMPT,
+        messages: hist
+      })
+    });
+
+    let data;
+    try { data = await res.json(); }
+    catch { demoHideTyping(); demoAddMsg('assistant', '⚠️ Respuesta inesperada del servidor (no es JSON).'); setLoading(false); return; }
+
+    demoHideTyping();
+    console.log('Anthropic response:', res.status, data);
+
+    if (!res.ok || data.error) {
+      const code = res.status;
+      const msg  = data.error?.message || '';
+      let userMsg;
+      if (code === 401) {
+        userMsg = '🔑 API key inválida o revocada. Ingresa una key válida en el campo de configuración.';
+        showKeyBar();
+      } else if (code === 429) {
+        userMsg = '⏳ Límite de uso alcanzado. Espera un momento e intenta de nuevo.';
+      } else if (code === 400) {
+        userMsg = '⚠️ Error en la solicitud: ' + msg;
+      } else if (code === 529 || code === 500) {
+        userMsg = '⚠️ Anthropic está con sobrecarga ahora mismo. Intenta en unos segundos.';
+      } else {
+        userMsg = `⚠️ Error ${code}: ${msg || 'intenta de nuevo.'}`;
+      }
+      demoAddMsg('assistant', userMsg);
+      hist.pop(); // quita el mensaje del usuario si no hubo respuesta válida
+    } else {
+      const reply = data.content[0].text;
+      hist.push({ role: 'assistant', content: reply });
+      demoAddMsg('assistant', reply);
+    }
+  } catch (e) {
+    demoHideTyping();
+    console.error('Fetch error:', e);
+    demoAddMsg('assistant', '⚠️ No se pudo conectar. Revisa tu conexión a internet.');
+    hist.pop();
+  }
+
+  setLoading(false);
+  demoInputEl.focus();
+}
+
+function sendQuickReply(text) { sendMessage(text); }
+
+/* Key bar */
+const keyBarEl  = document.getElementById('keyBar');
+const keyInputEl = document.getElementById('keyInput');
+const keySaveEl  = document.getElementById('keySave');
+
+function showKeyBar() {
+  keyBarEl.style.display = 'flex';
+  keyInputEl.value = API_KEY;
+  keyInputEl.focus();
+}
+
+keySaveEl.addEventListener('click', () => {
+  const val = keyInputEl.value.trim();
+  if (!val) return;
+  API_KEY = val;
+  _lsSet('agente_api_key', val);
+  keyBarEl.style.display = 'none';
+  demoAddMsg('assistant', '✅ API key guardada. ¡Ya puedes escribirme!');
+});
+
+keyInputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter') keySaveEl.click();
+});
+
+demoSendEl.addEventListener('click', () => sendMessage(demoInputEl.value));
+demoInputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(demoInputEl.value); }
+});
+
+/* Welcome — solo visual, NO va al historial de la API */
+setTimeout(() => {
+  demoAddMsg('assistant', WELCOME);
+  if (!API_KEY) showKeyBar();
+}, 700);
+
+/* ==========================================
+   IMPACT MODULE
+========================================== */
+const sectorData = {
+  dental:       { leads:90,  ticket:3200,  perd:.68, sinSeg:.82, context:'En clínicas dentales, la mayoría de leads no son contactados a tiempo. Con respuesta inmediata y calificación automática puedes recuperar más de la mitad de los prospectos perdidos.' },
+  gym:          { leads:120, ticket:1400,  perd:.71, sinSeg:.85, context:'Los gimnasios pierden leads en horarios pico cuando el equipo está ocupado atendiendo presencialmente. El agente cubre las 24 horas sin costo adicional.' },
+  inmobiliaria: { leads:55,  ticket:28000, perd:.62, sinSeg:.78, context:'En inmobiliaria, un solo lead perdido representa decenas de miles de pesos. El agente califica y agenda visitas automáticamente mientras tu equipo trabaja en campo.' },
+  ecommerce:    { leads:200, ticket:850,   perd:.74, sinSeg:.88, context:'El abandono de carrito y las consultas sin respuesta son el mayor problema del ecommerce. El agente recupera ventas en tiempo real, las 24 horas.' },
+  restaurante:  { leads:80,  ticket:950,   perd:.65, sinSeg:.75, context:'Reservaciones perdidas, eventos sin confirmar, preguntas sin respuesta. El agente gestiona todo esto mientras tus meseros atienden el salón.' },
+  academia:     { leads:110, ticket:4500,  perd:.70, sinSeg:.83, context:'Las academias pierden inscripciones por demoras en responder. El agente califica, presenta opciones y agenda demos de clase de forma autónoma.' },
+};
+
+let currentSector = 'dental';
+let animFrame = null;
+let impactTriggered = false;
+
+function calcLoss(s) {
+  const { leads, ticket, perd } = sectorData[s];
+  return Math.round(leads * perd * 0.18) * ticket;
+}
+
+function fmtMXN(n) {
+  return '$' + n.toLocaleString('es-MX');
+}
+
+function animateNumber(target) {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  const el = document.getElementById('impactNumber');
+  const start = performance.now();
+  const duration = 1600;
+  (function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmtMXN(Math.round(eased * target));
+    if (p < 1) animFrame = requestAnimationFrame(step);
+    else el.textContent = fmtMXN(target);
+  })(start);
+}
+
+function updateImpact(sector, animate) {
+  const d = sectorData[sector];
+  const loss = calcLoss(sector);
+  document.getElementById('impactContext').textContent = d.context;
+  document.getElementById('impactPills').innerHTML =
+    `<span class="i-pill i-pill-red">${Math.round(d.perd*100)}% leads se enfrían</span>` +
+    `<span class="i-pill i-pill-red">${Math.round(d.sinSeg*100)}% sin seguimiento</span>` +
+    `<span class="i-pill i-pill-green">65% recuperables con IA</span>`;
+  if (animate) animateNumber(loss);
+  else document.getElementById('impactNumber').textContent = fmtMXN(loss);
+}
+
+document.querySelectorAll('.sector-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.sector-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentSector = tab.dataset.sector;
+    updateImpact(currentSector, true);
+  });
+});
+
+const impactObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting && !impactTriggered) {
+    impactTriggered = true;
+    updateImpact(currentSector, true);
+  }
+}, { threshold: 0.2 });
+impactObs.observe(document.getElementById('impacto'));
+
+updateImpact('dental', false);
+
+/* ==========================================
+   FAQ ACCORDION
+========================================== */
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+</script>
+</body>
+</html>
