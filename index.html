@@ -1548,11 +1548,13 @@ async function sendMessage(text) {
     demoHideTyping();
 
     if (!res.ok || data.error) {
-      demoAddMsg('assistant', data.error || '⚠️ Error al conectar. Intenta de nuevo.');
+      const msg = res.status === 429 ? '⏳ Límite de uso alcanzado. Espera un momento.' : '⚠️ Error al conectar. Intenta de nuevo.';
+      demoAddMsg('assistant', msg);
       hist.pop();
     } else {
-      hist.push({ role: 'assistant', content: data.reply });
-      demoAddMsg('assistant', data.reply);
+      const reply = data.content[0].text;
+      hist.push({ role: 'assistant', content: reply });
+      demoAddMsg('assistant', reply);
     }
   } catch (e) {
     demoHideTyping();
