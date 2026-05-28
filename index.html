@@ -1018,9 +1018,11 @@ footer a{color:#333;text-decoration:none}
 
     <!-- Header -->
     <div class="asesoria-header">
-      <div class="asesoria-tag">🚀 Incluido en todos los planes · Sin costo adicional</div>
-      <h2 class="asesoria-h2">Loomi responde.<br>Pero necesita <span class="accent">prospectos.</span></h2>
-      <p class="asesoria-lead">El 76% de los mexicanos contactan negocios por WhatsApp antes de comprar. Meta Ads y TikTok Ads son las plataformas donde capturarlos. Por eso en cada plan de Loomi incluimos una <strong>estrategia de anuncios personalizada para tu negocio</strong>, diseñada por un especialista en tráfico pagado.</p>
+      <div class="asesoria-tag" style="font-size:15px;padding:10px 22px;background:rgba(184,255,0,0.12);border:1px solid rgba(184,255,0,0.3);border-radius:99px;display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;">
+        🎯 <strong>META ADS + TIKTOK ADS INCLUIDO</strong> · En todos los planes · Sin costo adicional
+      </div>
+      <h2 class="asesoria-h2">El agente responde.<br>Los anuncios <span class="accent">traen prospectos.</span></h2>
+      <p class="asesoria-lead">¿De qué sirve el mejor agente si nadie le escribe? Por eso en cada plan incluimos asesoría experta en <strong>Meta Ads y TikTok Ads</strong> — para que siempre haya leads entrando a tu WhatsApp.</p>
     </div>
 
     <div class="asesoria-grid">
@@ -1035,7 +1037,7 @@ footer a{color:#333;text-decoration:none}
           <li><span class="asesoria-item-num">05</span><div><strong>Creación y escalado de anuncios</strong><span>Creativos, copys y estructuras que convierten</span></div></li>
           <li><span class="asesoria-item-num">06</span><div><strong>Configuraciones técnicas avanzadas</strong><span>Píxel, CAPI, audiencias personalizadas y lookalike</span></div></li>
         </ul>
-        <a href="https://app.loomi.mx:44304" class="asesoria-cta">Quiero mi plan con asesoría incluida →</a>
+        <a href="https://wa.me/523323858580?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20Loomi%20con%20asesor%C3%ADa%20en%20Meta%20Ads%20y%20TikTok%20Ads" class="asesoria-cta">Quiero mi plan con asesoría incluida →</a>
       </div>
 
       <!-- Right: value + plan breakdown -->
@@ -1122,7 +1124,7 @@ footer a{color:#333;text-decoration:none}
             <div class="plan-bonus-text"><strong>1 mes</strong> de asesoría experta en Meta Ads y TikTok Ads para llenar tu embudo de prospectos</div>
           </div>
         </div>
-        <a href="https://app.loomi.mx:44304" class="plan-btn plan-btn-outline">Empezar con Starter</a>
+        <a href="https://wa.me/523323858580?text=Hola%2C%20quiero%20contratar%20Loomi%20en%20el%20plan%20Starter%20%F0%9F%9A%80" class="plan-btn plan-btn-outline">Quiero el plan Starter →</a>
       </div>
 
       <!-- PRO -->
@@ -1163,7 +1165,7 @@ footer a{color:#333;text-decoration:none}
             <div class="plan-bonus-text"><strong>3 meses</strong> de asesoría experta en Meta Ads y TikTok Ads — campañas rentables desde el primer mes</div>
           </div>
         </div>
-        <a href="https://app.loomi.mx:44304" class="plan-btn plan-btn-primary">Empezar con Pro</a>
+        <a href="https://wa.me/523323858580?text=Hola%2C%20quiero%20contratar%20Loomi%20en%20el%20plan%20Pro%20%F0%9F%9A%80" class="plan-btn plan-btn-primary">Quiero el plan Pro →</a>
       </div>
 
       <!-- BUSINESS -->
@@ -1202,7 +1204,7 @@ footer a{color:#333;text-decoration:none}
             <div class="plan-bonus-text"><strong>Asesoría permanente</strong> en Meta Ads y TikTok Ads — tu sistema de captación nunca se detiene</div>
           </div>
         </div>
-        <a href="https://app.loomi.mx:44304" class="plan-btn plan-btn-outline">Empezar con Business</a>
+        <a href="https://wa.me/523323858580?text=Hola%2C%20quiero%20contratar%20Loomi%20en%20el%20plan%20Business%20%F0%9F%9A%80" class="plan-btn plan-btn-outline">Quiero el plan Business →</a>
       </div>
 
     </div><!-- /precios-grid -->
@@ -1454,10 +1456,7 @@ startHeroAnim();
 /* ==========================================
    DEMO CHAT
 ========================================== */
-const _DEFAULT_KEY = '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';
-function _lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
-function _lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
-let API_KEY = (_lsGet('agente_api_key') || _DEFAULT_KEY).trim();
+const DEMO_API_URL = 'https://app.loomi.mx:44304/api/demo';
 
 const SYSTEM_PROMPT = `Eres un agente de ventas IA de alto rendimiento. Eres experto en hacer de setter y closer.
 
@@ -1524,12 +1523,6 @@ async function sendMessage(text) {
   text = text.trim();
   if (busy || !text) return;
 
-  if (!API_KEY) {
-    showKeyBar();
-    demoAddMsg('assistant', '🔑 Necesitas ingresar tu API key de Anthropic para usar el chat. Aparece el campo arriba del input.');
-    return;
-  }
-
   if (!firstMsg) {
     firstMsg = true;
     quickReplies.style.display = 'none';
@@ -1542,55 +1535,27 @@ async function sendMessage(text) {
   demoShowTyping();
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(DEMO_API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        system: SYSTEM_PROMPT,
-        messages: hist
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: hist })
     });
 
     let data;
     try { data = await res.json(); }
-    catch { demoHideTyping(); demoAddMsg('assistant', '⚠️ Respuesta inesperada del servidor (no es JSON).'); setLoading(false); return; }
+    catch { demoHideTyping(); demoAddMsg('assistant', '⚠️ Respuesta inesperada. Intenta de nuevo.'); setLoading(false); return; }
 
     demoHideTyping();
-    console.log('Anthropic response:', res.status, data);
 
     if (!res.ok || data.error) {
-      const code = res.status;
-      const msg  = data.error?.message || '';
-      let userMsg;
-      if (code === 401) {
-        userMsg = '🔑 API key inválida o revocada. Ingresa una key válida en el campo de configuración.';
-        showKeyBar();
-      } else if (code === 429) {
-        userMsg = '⏳ Límite de uso alcanzado. Espera un momento e intenta de nuevo.';
-      } else if (code === 400) {
-        userMsg = '⚠️ Error en la solicitud: ' + msg;
-      } else if (code === 529 || code === 500) {
-        userMsg = '⚠️ Anthropic está con sobrecarga ahora mismo. Intenta en unos segundos.';
-      } else {
-        userMsg = `⚠️ Error ${code}: ${msg || 'intenta de nuevo.'}`;
-      }
-      demoAddMsg('assistant', userMsg);
-      hist.pop(); // quita el mensaje del usuario si no hubo respuesta válida
+      demoAddMsg('assistant', data.error || '⚠️ Error al conectar. Intenta de nuevo.');
+      hist.pop();
     } else {
-      const reply = data.content[0].text;
-      hist.push({ role: 'assistant', content: reply });
-      demoAddMsg('assistant', reply);
+      hist.push({ role: 'assistant', content: data.reply });
+      demoAddMsg('assistant', data.reply);
     }
   } catch (e) {
     demoHideTyping();
-    console.error('Fetch error:', e);
     demoAddMsg('assistant', '⚠️ No se pudo conectar. Revisa tu conexión a internet.');
     hist.pop();
   }
