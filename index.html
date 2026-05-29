@@ -426,15 +426,30 @@ footer a{color:#333;text-decoration:none}
 }
 
 .plan-price-wrap{margin-bottom:20px}
-.plan-price-old{
-  font-size:14px;
-  color:var(--g600);
-  text-decoration:line-through;
-  margin-bottom:6px;
+.plan-setup-fee{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  padding:6px 12px;
+  font-size:12.5px;
+  color:rgba(255,255,255,.65);
+  font-weight:600;
+  margin-bottom:10px;
+}
+.plan-setup-fee strong{color:#fff}
+.plan-setup-label{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--g400);
+  margin-bottom:4px;
 }
 .plan-price-row{display:flex;align-items:flex-end;gap:4px;line-height:1}
 .plan-currency{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
 .plan-price{font-size:52px;font-weight:800;color:#fff;letter-spacing:-2px}
+.plan-price.sm{font-size:38px;letter-spacing:-1px}
 .plan-period{font-size:12px;color:var(--g400);line-height:1.4;margin-bottom:4px;margin-left:4px}
 .plan-discount{
   background:#fef9c3;
@@ -1082,7 +1097,7 @@ footer a{color:#333;text-decoration:none}
     <div class="precios-head">
       <span class="kicker kicker-green">Planes y precios</span>
       <h2 class="precios-h2">Implementación hecha<br><span class="accent">para ti.</span></h2>
-      <p class="precios-sub">Configuración inicial incluida en todos los planes. Solo me escribes y en 5 días hábiles tenemos tu sistema activo.</p>
+      <p class="precios-sub">Pago único de setup + mensualidad sin contratos forzosos. Escríbeme y en 5 días hábiles tienes tu sistema activo.</p>
     </div>
 
     <div class="precios-grid">
@@ -1095,17 +1110,17 @@ footer a{color:#333;text-decoration:none}
           <div class="plan-agents"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> hasta 2 agentes</div>
         </div>
         <div class="plan-price-wrap">
-          <div class="plan-price-old">$399 MXN/mes</div>
+          <div class="plan-setup-fee">⚙️ Setup único <strong>$2,500 MXN</strong></div>
+          <div class="plan-setup-label">Mensualidad</div>
           <div class="plan-price-row">
             <span class="plan-currency">$</span>
-            <span class="plan-price">299</span>
+            <span class="plan-price">499</span>
             <span class="plan-period">MXN<br>por mes</span>
-            <span class="plan-discount">-25%</span>
           </div>
         </div>
         <div class="plan-lock">
           <span class="lock-ico">⚙️</span>
-          <span><strong>Configuración inicial incluida.</strong> Te lo instalamos, entrenamos y dejamos funcionando. Tú no tocas código ni servidores.</span>
+          <span><strong>El setup cubre todo.</strong> Llamada de diagnóstico, configuración del servidor, entrenamiento del agente y conexión del QR en vivo.</span>
         </div>
         <ul class="plan-features">
           <li class="feat-yes">1 número WhatsApp Business</li>
@@ -1136,17 +1151,17 @@ footer a{color:#333;text-decoration:none}
           <div class="plan-agents"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> hasta 5 agentes</div>
         </div>
         <div class="plan-price-wrap">
-          <div class="plan-price-old">$699 MXN/mes</div>
+          <div class="plan-setup-fee">⚙️ Setup único <strong>$3,500 MXN</strong></div>
+          <div class="plan-setup-label">Mensualidad</div>
           <div class="plan-price-row">
             <span class="plan-currency">$</span>
-            <span class="plan-price">499</span>
+            <span class="plan-price">799</span>
             <span class="plan-period">MXN<br>por mes</span>
-            <span class="plan-discount">-29%</span>
           </div>
         </div>
         <div class="plan-lock plan-lock-featured">
           <span class="lock-ico">⚙️</span>
-          <span><strong>Implementación completa incluida.</strong> Llamada de diagnóstico, entrenamiento del agente, CRM configurado y primera semana de ajustes.</span>
+          <span><strong>El setup cubre todo.</strong> Llamada de diagnóstico, configuración del servidor, entrenamiento del agente, CRM listo y primera semana de ajustes incluida.</span>
         </div>
         <ul class="plan-features">
           <li class="feat-yes">Todo lo del plan Starter</li>
@@ -1176,17 +1191,17 @@ footer a{color:#333;text-decoration:none}
           <div class="plan-agents"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> agentes ilimitados</div>
         </div>
         <div class="plan-price-wrap">
-          <div class="plan-price-old">$1,099 MXN/mes</div>
+          <div class="plan-setup-fee">⚙️ Setup único <strong>$5,000 MXN</strong></div>
+          <div class="plan-setup-label">Mensualidad</div>
           <div class="plan-price-row">
             <span class="plan-currency">$</span>
-            <span class="plan-price">799</span>
+            <span class="plan-price sm">1,199</span>
             <span class="plan-period">MXN<br>por mes</span>
-            <span class="plan-discount">-27%</span>
           </div>
         </div>
         <div class="plan-lock">
           <span class="lock-ico">⚙️</span>
-          <span><strong>Implementación premium incluida.</strong> Configuración completa, múltiples números, agentes ilimitados y soporte continuo directo.</span>
+          <span><strong>El setup cubre todo.</strong> Configuración completa en servidor propio, múltiples líneas, entrenamiento avanzado y soporte directo continuo.</span>
         </div>
         <ul class="plan-features">
           <li class="feat-yes">Todo lo del plan Pro</li>
@@ -1306,10 +1321,10 @@ footer a{color:#333;text-decoration:none}
       </button>
       <div class="faq-answer">
         <div class="faq-answer-body">
-          La mensualidad depende del plan: Starter ($299/mes), Pro ($499/mes) o Business ($799/mes). La configuración inicial está incluida — no cobro aparte por instalarlo. Todos los planes incluyen asesoría en Meta Ads y TikTok Ads. La mayoría de clientes recuperan la inversión en el primer mes con los leads que deja de perder.
+          Hay dos partes: un pago único de setup ($2,500–$5,000 MXN según plan) que cubre toda la configuración inicial, y una mensualidad ($499–$1,199 MXN) para el servidor, el agente y el soporte continuo. Sin contratos forzosos — si cancelas, se acaba. La mayoría de clientes recuperan el setup en el primer mes con los leads que dejaban de perder.
           <div class="faq-chips">
-            <span class="chip chip-g">Setup incluido</span>
-            <span class="chip chip-b">Sin costo de instalación</span>
+            <span class="chip chip-g">Setup único + mensualidad</span>
+            <span class="chip chip-b">Sin contrato mínimo</span>
             <span class="chip chip-y">ROI en el primer mes</span>
           </div>
         </div>
