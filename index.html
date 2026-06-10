@@ -1567,7 +1567,7 @@ async function sendMessage(text) {
       demoAddMsg('assistant', msg);
       hist.pop();
     } else {
-      const reply = data.content[0].text;
+      const reply = data.reply;
       hist.push({ role: 'assistant', content: reply });
       demoAddMsg('assistant', reply);
     }
